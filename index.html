@@ -155,21 +155,14 @@ import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,doc,setDoc,deleteDoc,addDoc,onSnapshot,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+/* ====== COLE AQUI A CONFIGURAÇÃO DO SEU PROJETO FIREBASE ====== */
 const firebaseConfig = {
   apiKey: "AIzaSyDM_nH2AkANd0Y-GiLNKVRV7f8HGUuG-lk",
   authDomain: "ticket-cesta-basica.firebaseapp.com",
   projectId: "ticket-cesta-basica",
   storageBucket: "ticket-cesta-basica.firebasestorage.app",
   messagingSenderId: "78373878503",
-  appId: "1:78373878503:web:5a3f7e402392995ce70042",
-  measurementId: "G-LXRB9X0SE6"
-};
-const firebaseConfig = {
-  apiKey: "COLE_AQUI",
-  authDomain: "SEU-PROJETO.firebaseapp.com",
-  projectId: "SEU-PROJETO",
-  appId: "COLE_AQUI"
+  appId: "1:78373878503:web:5a3f7e402392995ce70042"
 };
 /* =============================================================== */
 
@@ -185,7 +178,18 @@ let equipe = [], editando = null, unsub = null;
 $("btnLogin").onclick = async () => {
   $("loginMsg").textContent = "";
   try { await signInWithEmailAndPassword(auth, $("em").value.trim(), $("pw").value); }
-  catch { $("loginMsg").textContent = "E-mail ou senha incorretos."; }
+  catch (e) {
+    const m = {
+      "auth/invalid-credential": "E-mail ou senha incorretos.",
+      "auth/invalid-email": "E-mail inválido.",
+      "auth/operation-not-allowed": "O login por e-mail/senha não está ativado no Firebase (Authentication → Método de login).",
+      "auth/invalid-api-key": "A apiKey do firebaseConfig está incorreta ou não foi preenchida.",
+      "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "A apiKey do firebaseConfig está incorreta.",
+      "auth/network-request-failed": "Falha de rede. Verifique a conexão.",
+      "auth/too-many-requests": "Muitas tentativas. Aguarde alguns minutos."
+    };
+    $("loginMsg").textContent = (m[e.code] || "Erro ao entrar.") + " (" + (e.code || e.message) + ")";
+  }
 };
 $("pw").onkeydown = e => { if (e.key === "Enter") $("btnLogin").click(); };
 $("btnOut").onclick = () => signOut(auth);
